@@ -65,25 +65,25 @@ usersRouter.post("/login", (req, res) => {
   return res.status(200).json({ message: "Login successful" });
 });
 
-// usersRouter.get("/", (req, res) => {
-//   const { name, password } = req.body;
-//   let users;
-//   let usersArr;
+usersRouter.get("/", (req, res) => {
+  const { name, password } = req.body;
+  let users;
+  let usersArr;
 
-//   try {
-//     users = fs.readFileSync("db/users.json", "utf8");
-//     usersArr = JSON.parse(users);
-//   } catch (error) {
-//     console.log(error);
-//   }
+  try {
+    users = fs.readFileSync("db/users.json", "utf8");
+    usersArr = JSON.parse(users);
+  } catch (error) {
+    console.log(error);
+  }
 
-//   let isUserAdmin = usersArr.find((user) => user.role === "admin");
-//   console.log(isUserAdmin);
-//   if (isUserAdmin) {
-//     return res.status(200).json({ usersArr });
-//   } else {
-//     return res.status(401).json({ message: "unauthorized!" });
-//   }
-// });
+  let admins = usersArr.filter((user) => user.role === "admin");
+
+  if (admins.find((admin) => admin.name === name)) {
+    return res.status(200).json({ usersArr });
+  } else {
+    return res.status(401).json({ message: "unauthorized!" });
+  }
+});
 
 module.exports = usersRouter;
