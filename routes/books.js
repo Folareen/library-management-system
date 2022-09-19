@@ -75,11 +75,34 @@ booksRouter.delete("/", (req, res) => {
   });
 });
 
-// booksRouter.get("/", (req, res) => {
-//   const { role, book } = req.body;
-//   console.log(book);
+booksRouter.get("/", (req, res) => {
+  const {
+    role,
+    book: { title },
+  } = req.body;
+  let booksArr;
 
-//   return;
-// });
+  if (!["admin", "visitor"].includes(role)) {
+    return res.status(401).json({ message: "Unauthorized!" });
+  }
+
+  if (!title) {
+    return res.status(400).json({ message: "Invalid Book" });
+  }
+
+  try {
+    booksArr = JSON.parse(fs.readFileSync("db/books.json", "utf8"));
+  } catch (error) {
+    console.log(error);
+  }
+
+  const bookId = booksArr.findIndex((oldBook) => oldBook.title === title);
+
+  if (bookId === -1) {
+    return res.status(400).json({ message: "book not found!" });
+  }
+
+  return res.status(200).json({ book: booksArr[bookId] });
+});
 
 module.exports = booksRouter;
