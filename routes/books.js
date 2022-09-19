@@ -38,6 +38,43 @@ booksRouter.post("/", (req, res) => {
   });
 });
 
+booksRouter.delete("/", (req, res) => {
+  const { role, book } = req.body;
+  let booksArr;
+
+  if (role !== "admin") {
+    return res.status(401).json({ message: "unauthorized!" });
+  }
+
+  if (!book || !book.title || !book.author || !book.year) {
+    return res.status(400).json({ message: "Invalid Book" });
+  }
+
+  try {
+    booksArr = JSON.parse(fs.readFileSync("db/books.json", "utf8"));
+  } catch (error) {
+    console.log(error);
+  }
+
+  const bookId = booksArr.findIndex((oldBook) => oldBook.title === book.title);
+
+  if (bookId === -1) {
+    return res.status(400).json({ message: "book not found!" });
+  }
+
+  try {
+    booksArr.splice(bookId, 1);
+    fs.writeFileSync("db/books.json", JSON.stringify(booksArr));
+  } catch (err) {
+    console.error(err);
+  }
+
+  return res.status(200).json({
+    book,
+    message: "Book Deleted Successfully!",
+  });
+});
+
 // booksRouter.get("/", (req, res) => {
 //   const { role, book } = req.body;
 //   console.log(book);
